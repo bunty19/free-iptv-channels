@@ -39,6 +39,8 @@ Use one of these region codes to specify the region in the `region` parameter:
 - `se` (Sweden)
 - `us` (United States)
 
+**Please note:** It’s much better to add the Google Apps Script to your own Google account rather than relying on this publicly shared URL long-term.
+
 ### How to Add the Script to Your Google Account (code.gs)
 
 Follow this video tutorial to deploy the Google Apps Script:
