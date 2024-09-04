@@ -58,3 +58,8 @@ To use the script, you need to add the `region` and `service` parameters at the 
 `https://script.google.com/macros/s/...gwlprM_Kn10kT7LGk/exec?region=us&service=Plex`
 
 Simply replace `region=us` and `service=Plex` with the appropriate region and service values from the available parameters listed above.
+
+### EPG for TV Guide Information
+
+The EPG URLs are embedded directly within the playlists. If you'd prefer to manually add the EPG guide, you can find the relevant URLs for each service on
+this [page](https://github.com/matthuisman/i.mjh.nz/).
