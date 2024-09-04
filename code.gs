@@ -81,11 +81,16 @@ function doGet(e) {
   const exclude = (params.exclude || '').split(',').filter(Boolean);
 
   let output = `#EXTM3U url-tvg="https://github.com/matthuisman/i.mjh.nz/raw/master/` + service + `/${region}.xml.gz"\n`;
+  
+  // Add this condition to set EPG to "all" for Roku regardless of region
+  if (service.toLowerCase() === 'roku') {
+    output = `#EXTM3U url-tvg="https://github.com/matthuisman/i.mjh.nz/raw/master/roku/all.xml.gz"\n`;
+  }
 
   const sortedKeys = Object.keys(channels).sort((a, b) => {
     const chA = channels[a];
     const chB = channels[b];
-    return sort === 'chno' ? chA.chno - chB.chno : chA.name.localeCompare(chB.name);
+    return chA.name.localeCompare(chB.name); 
   });
 
   sortedKeys.forEach(key => {
@@ -97,6 +102,11 @@ function doGet(e) {
     let group = groupExtractionRequired
       ? (channel.groups && channel.groups.length > 0 ? channel.groups[0] : regionNameMap[region] || region.toUpperCase())
       : (channel.group || regionNameMap[region] || region.toUpperCase());
+	  
+	// Add this condition to remove the group title for Roku
+	if (service.toLowerCase() === 'roku') {
+	  group = ''; // No group title for Roku
+	}
 
     // Handle group-title for Plex
     if (service.toLowerCase() === 'plex' && region === 'all' && regions && regions.length > 0) {
