@@ -119,6 +119,11 @@ function doGet(e) {
       ? (channel.groups && channel.groups.length > 0 ? channel.groups[0] : regionNameMap[region] || region.toUpperCase())
       : (channel.group || regionNameMap[region] || region.toUpperCase());
 
+    // Add this condition to remove the group title for Roku
+    if (service.toLowerCase() === 'roku') {
+      group = ''; // No group title for Roku
+    } 
+
     if (service.toLowerCase() === 'plex' && region === 'all' && regions && regions.length > 0) {
       regions.forEach(regionCode => {
         const regionFullName = regionNameMap[regionCode] || regionCode.toUpperCase();
