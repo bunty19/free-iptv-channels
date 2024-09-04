@@ -3,46 +3,25 @@ function doGet(e) {
   const region = (params.region || 'us').toLowerCase().trim();
   const service = params.service;
 
+  // Check if the service parameter is missing
   if (!service) {
     return ContentService.createTextOutput('Error: No service type provided').setMimeType(ContentService.MimeType.TEXT);
   }
 
-  let cacheFileId = checkCache(service);
-
-  let data;
-
-  try {
-    if (cacheFileId) {
-      Logger.log('Using cached data');
-      data = retrieveJsonFromDrive(cacheFileId);
-    } else {
-      Logger.log('Fetching new data');
-      const APP_URL = 'https://i.mjh.nz/' + service + '/.app.json';
-      const response = UrlFetchApp.fetch(APP_URL);
-      data = JSON.parse(response.getContentText());
-      cacheFileId = saveJsonToDrive(data, service);  // Save only based on the service
-    }
-  } catch (error) {
-    Logger.log('Error fetching new data: ' + error.message);
-    if (cacheFileId) {
-      Logger.log('Serving previously cached data due to fetch error');
-      data = retrieveJsonFromDrive(cacheFileId);
-    } else {
-      return ContentService.createTextOutput('Error fetching data and no cached data available: ' + error.message).setMimeType(ContentService.MimeType.TEXT);
-    }
-  }
+  const APP_URL = 'https://i.mjh.nz/' + service + '/.app.json';
+  const response = UrlFetchApp.fetch(APP_URL);
+  const data = JSON.parse(response.getContentText());
 
   if (service.toLowerCase() === 'pbs') {
     return ContentService.createTextOutput(formatPbsDataForM3U8(data))
       .setMimeType(ContentService.MimeType.TEXT);
   }
 
-  // The rest of the script remains unchanged, using the data and filtering based on the region.
-
   let channels = {};
   let groupExtractionRequired = false;
-  let regionNames = {};
+  let regionNames = {}; // For Plex, to map region codes to full names
 
+  // Map of region codes to full names for Plex
   const regionNameMap = {
     us: "USA",
     mx: "Mexico",
@@ -53,8 +32,10 @@ function doGet(e) {
   };
 
   if (data.channels) {
+    // Channels are directly in the data object, and group extraction is needed
     channels = data.channels;
 
+    // Plex-specific region filtering logic
     if (service.toLowerCase() === 'plex' && region !== 'all') {
       channels = Object.keys(channels).reduce((filteredChannels, key) => {
         const channel = channels[key];
@@ -67,8 +48,10 @@ function doGet(e) {
 
     groupExtractionRequired = true;
   } else if (data.regions) {
+    // Channels are inside regions, no special group extraction needed
     const regions = data.regions;
 
+    // Populate regionNames for Plex using the provided map
     if (service.toLowerCase() === 'plex') {
       for (let regionKey in regions) {
         regionNames[regionKey] = regionNameMap[regionKey] || regionKey.toUpperCase();
@@ -99,11 +82,6 @@ function doGet(e) {
 
   let output = `#EXTM3U url-tvg="https://github.com/matthuisman/i.mjh.nz/raw/master/` + service + `/${region}.xml.gz"\n`;
 
-  // Add this condition to set EPG to "all" for Roku regardless of region
-  if (service.toLowerCase() === 'roku') {
-    output = `#EXTM3U url-tvg="https://github.com/matthuisman/i.mjh.nz/raw/master/Roku/all.xml.gz"\n`;
-  }
-
   const sortedKeys = Object.keys(channels).sort((a, b) => {
     const chA = channels[a];
     const chB = channels[b];
@@ -112,18 +90,15 @@ function doGet(e) {
 
   sortedKeys.forEach(key => {
     const channel = channels[key];
-    const { logo, name, url, regions } = channel;
+    const { logo, name, url, regions } = channel; // Extract regions from channel
     const channelId = `${service}-${key}`;
 
+    // If group extraction is required (channels are outside regions), use the first group from the groups array
     let group = groupExtractionRequired
       ? (channel.groups && channel.groups.length > 0 ? channel.groups[0] : regionNameMap[region] || region.toUpperCase())
       : (channel.group || regionNameMap[region] || region.toUpperCase());
 
-    // Add this condition to remove the group title for Roku
-    if (service.toLowerCase() === 'roku') {
-      group = ''; // No group title for Roku
-    } 
-
+    // Handle group-title for Plex
     if (service.toLowerCase() === 'plex' && region === 'all' && regions && regions.length > 0) {
       regions.forEach(regionCode => {
         const regionFullName = regionNameMap[regionCode] || regionCode.toUpperCase();
@@ -141,8 +116,9 @@ function doGet(e) {
         }
       });
     } else {
+      // Handle group-title for SamsungTVPlus and PlutoTV when region is "all"
       if ((service.toLowerCase() === 'samsungtvplus' || service.toLowerCase() === 'plutotv') && region === 'all' && channel.region) {
-        group = channel.region;
+        group = channel.region;  // Set group-title to region name only
       } else if (region === 'all' && channel.region) {
         const regionCode = channel.region ? channel.region.toUpperCase() : '';
         if (regionCode) {
@@ -167,37 +143,6 @@ function doGet(e) {
   return ContentService.createTextOutput(output).setMimeType(ContentService.MimeType.TEXT);
 }
 
-function checkCache(service) {
-  const folder = DriveApp.getFolderById('1rsEllB18ceRdHvBvumwSpyPg3fnZFxo1');
-  const files = folder.getFilesByName(`${service}_cache.json`);
-  if (files.hasNext()) {
-    const file = files.next();
-    const lastUpdated = new Date(file.getLastUpdated()).getTime();
-    const now = new Date().getTime();
-
-    if (now - lastUpdated < 7200000) {  // 2 hours = 7200000 milliseconds
-      return file.getId();
-    } else {
-      file.setTrashed(true); // Trash old cache file
-    }
-  }
-  return null;
-}
-
-function saveJsonToDrive(data, service) {
-  const jsonString = JSON.stringify(data);
-  const fileName = `${service}_cache.json`;
-  const folder = DriveApp.getFolderById('1rsEllB18ceRdHvBvumwSpyPg3fnZFxo1');
-  const file = folder.createFile(fileName, jsonString, MimeType.PLAIN_TEXT);
-  return file.getId(); // Return file ID for future reference
-}
-
-function retrieveJsonFromDrive(fileId) {
-  const file = DriveApp.getFileById(fileId);
-  const jsonString = file.getBlob().getDataAsString();
-  return JSON.parse(jsonString);
-}
-
 function formatPbsDataForM3U8(data) {
   let output = '#EXTM3U x-tvg-url="https://github.com/matthuisman/i.mjh.nz/raw/master/PBS/all.xml.gz"\n';
 
@@ -212,4 +157,3 @@ function formatPbsDataForM3U8(data) {
 
   return output;
 }
-
