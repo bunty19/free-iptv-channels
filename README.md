@@ -18,6 +18,7 @@ Choose one of the following services to include in the `service` parameter:
 - SamsungTVPlus
 - PlutoTV
 - PBS
+- PBSKids
 - Stirr
 
 ### Available Region Parameters
