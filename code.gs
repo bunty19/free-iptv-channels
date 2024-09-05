@@ -7,6 +7,11 @@ function doGet(e) {
   if (!service) {
     return ContentService.createTextOutput('Error: No service type provided').setMimeType(ContentService.MimeType.TEXT);
   }
+  
+  if (service.toLowerCase() === 'pbskids') {
+	const pbsKidsOutput = handlePBSKids();  // Call the PBS Kids handler function
+	return ContentService.createTextOutput(pbsKidsOutput).setMimeType(ContentService.MimeType.TEXT);
+  }
 
   const APP_URL = 'https://i.mjh.nz/' + service + '/.app.json';
   const response = UrlFetchApp.fetch(APP_URL);
@@ -166,4 +171,36 @@ function formatPbsDataForM3U8(data) {
   });
 
   return output;
+}
+
+function handlePBSKids() {
+  const APP_URL = 'https://i.mjh.nz/PBS/.kids_app.json';
+  const EPG_URL = 'https://github.com/matthuisman/i.mjh.nz/raw/master/PBS/kids_all.xml.gz';
+  let response;
+  
+  try {
+    response = UrlFetchApp.fetch(APP_URL);
+    const data = JSON.parse(response.getContentText());
+
+    let output = `#EXTM3U url-tvg="${EPG_URL}"\n`;
+
+    // Sort the channels by name before iterating
+    const sortedKeys = Object.keys(data.channels).sort((a, b) => {
+      const channelA = data.channels[a].name.toLowerCase();
+      const channelB = data.channels[b].name.toLowerCase();
+      return channelA.localeCompare(channelB);
+    });
+
+    sortedKeys.forEach(key => {
+      const channel = data.channels[key];
+      const { logo, name, url } = channel; // Extract necessary data from the channel
+      
+      output += `#EXTINF:-1 channel-id="pbskids-${key}" tvg-id="${key}" tvg-logo="${logo}", ${name}\n${url}\n`;
+    });
+
+    return output;
+  } catch (error) {
+    Logger.log('Error fetching PBS Kids data: ' + error.message);
+    return ContentService.createTextOutput('Error fetching PBS Kids data: ' + error.message).setMimeType(ContentService.MimeType.TEXT);
+  }
 }
