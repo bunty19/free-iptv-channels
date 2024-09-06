@@ -17,7 +17,6 @@ Use the following URL to access the hosted script. Replace the `ADD_REGION` and 
 
 After customizing the URL by replacing the ADD_REGION and ADD_SERVICE placeholders with your desired region and service (e.g., us for the US region and Pluto for the service), copy the complete URL and paste it into the "Add Playlist" or "M3U8 URL" section of your IPTV application. Once added, the app will load both the channels and the guide information
 
-
 ### Available Service Parameters
 
 Choose one of the following services to include in the `service` parameter:
@@ -70,6 +69,18 @@ To use the script, you need to add the `region` and `service` parameters at the 
 `https://script.google.com/macros/s/...gwlprM_Kn10kT7LGk/exec?region=us&service=Plex`
 
 Simply replace `region=us` and `service=Plex` with the appropriate region and service values from the available parameters listed above.
+
+### **Running the Script Locally**
+
+The script can also be executed locally as a standalone Node.js server without relying on any external libraries or frameworks. To run it, simply navigate to the project directory and use the following command:
+
+`node node/index.js`
+
+Once the server is running, you can access it locally by navigating to:
+
+`http://localhost:3000?region=ADD_REGION&service=ADD_SERVICE`
+
+Replace `ADD_REGION` and `ADD_SERVICE` with the appropriate region and service values.
 
 ### EPG for TV Guide Information
 
