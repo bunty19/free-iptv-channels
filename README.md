@@ -70,6 +70,8 @@ To use the script, you need to add the `region` and `service` parameters at the 
 
 Simply replace `region=us` and `service=Plex` with the appropriate region and service values from the available parameters listed above.
 
+**Tip:** For a cleaner and more concise URL, consider using a URL shortener like [t.ly](https://t.ly/) and appending the necessary parameters at the end.
+
 ### **Running the Script Locally**
 
 The script can also be executed locally as a standalone Node.js server without relying on any external libraries or frameworks. To run it, simply navigate to the project directory and use the following command:
