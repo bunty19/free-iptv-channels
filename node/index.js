@@ -147,7 +147,7 @@ function formatPbsDataForM3U8(data) {
 // Function to handle PBS Kids
 async function handlePBSKids() {
   const APP_URL = 'https://i.mjh.nz/PBS/.kids_app.json';
-  const EPG_URL = 'https://github.com/matthuisman/i.mjh.nz/raw/master/PBS/kids_all.xml.gz';
+  const EPG_URL = 'https://github.com/matthuisman/i.mjh.nz/raw/master/PBS/all.xml.gz';
 
   try {
     const data = await fetchJson(APP_URL);
