@@ -46,7 +46,9 @@ Use one of these region codes to specify the region in the `region` parameter:
 
 ### How to Add the Script to Your Google Account (code.gs)
 
-Follow this video tutorial to deploy the Google Apps Script:
+Go <a href="https://script.google.com/home/start" target="_blank">here</a> and click the "New Project" button in the upper left corner. Then, copy the script from <a href="https://github.com/dtankdempse/free-iptv-channels/blob/main/code.gs" target="_blank">code.gs</a> and paste it into the script editor. Once done, deploy the script.
+
+Follow this video tutorial to learn how to deploy a Google Apps Script:
 
 [How to Deploy a Google Web App](https://www.youtube.com/watch?v=-AlstV1PAaA)
 
