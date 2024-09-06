@@ -1,3 +1,10 @@
+[<img src="https://vercel.com/button" alt="Deploy with Vercel" height="30"/>](https://vercel.com/new/clone?repository-url=https://github.com/dtankdempse/free-iptv-channels/tree/master/node&project-name=multiservice&repo-name=multiservice)
+[<img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy with Netlify" height="30"/>](https://app.netlify.com/start/deploy?repository=https://github.com/dtankdempse/free-iptv-channels)
+[<img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" height="30"/>](https://heroku.com/deploy?template=https://github.com/dtankdempse/free-iptv-channels)
+[<img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render" height="30"/>](https://render.com/deploy?repo=https://github.com/dtankdempse/free-iptv-channels)
+[<img src="https://i.imgur.com/fjfgTSm.jpeg" alt="Deploy to Fly.io" height="30"/>](https://fly.io/launch?source=https://github.com/dtankdempse/free-iptv-channels)
+[<img src="https://oneclick.amplifyapp.com/button.svg" alt="Deploy to AWS Amplify" height="30"/>](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/dtankdempse/free-iptv-channels)
+
 # Pluto, Samsung, Stirr, Plex, PBS and Roku Playlist (M3U8)
 
 This script generates an m3u8 playlist from the channels provided by services such as Pluto, Samsung, Stirr, Plex, PBS, and Roku. It is based on the original script created by matthuisman, which can be found at [matthuisman's GitHub repository](https://github.com/matthuisman/i.mjh.nz).
