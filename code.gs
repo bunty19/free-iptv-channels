@@ -42,11 +42,50 @@ function doGet(e) {
 
     // Plex-specific region filtering logic
     if (service.toLowerCase() === 'plex' && region !== 'all') {
+      const channelsJsonUrl = 'https://raw.githubusercontent.com/dtankdempse/free-iptv-channels/main/plex/channels.json';
+      
+      // Fetch the Plex channels JSON
+      const plexChannelsResponse = UrlFetchApp.fetch(channelsJsonUrl);
+      const plexChannels = JSON.parse(plexChannelsResponse.getContentText());
+
       channels = Object.keys(channels).reduce((filteredChannels, key) => {
         const channel = channels[key];
+        
         if (channel.regions && channel.regions.includes(region)) {
-          filteredChannels[key] = { ...channel, group: regionNameMap[region] || region.toUpperCase() };
+          // Search for the channel in the Plex channels JSON by title
+          const plexChannel = plexChannels.find(ch => ch.Title === channel.name);
+          
+          // Use the genre from the Plex channels JSON for group-title, default to "Uncategorized"
+          const genre = plexChannel && plexChannel.Genre ? plexChannel.Genre : 'Uncategorized';
+
+          // Assign only the genre when region is NOT 'all'
+          filteredChannels[key] = { 
+            ...channel, 
+            group: `${genre}`
+          };
         }
+
+        return filteredChannels;
+      }, {});
+    }
+
+    // When region is "all", show country mapping
+    if (service.toLowerCase() === 'plex' && region === 'all') {
+      channels = Object.keys(channels).reduce((filteredChannels, key) => {
+        const channel = channels[key];
+
+        // Add the regionNameMap mapping for each region
+        if (channel.regions && channel.regions.length > 0) {
+          channel.regions.forEach(regionCode => {
+            const regionFullName = regionNameMap[regionCode] || regionCode.toUpperCase();
+
+            filteredChannels[key] = {
+              ...channel,
+              group: `${regionFullName}` // Use the full country name when region is 'all'
+            };
+          });
+        }
+
         return filteredChannels;
       }, {});
     }
@@ -105,8 +144,8 @@ function doGet(e) {
 
     // If group extraction is required (channels are outside regions), use the first group from the groups array
     let group = groupExtractionRequired
-      ? (channel.groups && channel.groups.length > 0 ? channel.groups[0] : regionNameMap[region] || region.toUpperCase())
-      : (channel.group || regionNameMap[region] || region.toUpperCase());
+      ? (channel.group || '') // Avoid adding the region name here
+      : (channel.group || '');
 	  
 	// Add this condition to remove the group title for Roku
 	if (service.toLowerCase() === 'roku') {
