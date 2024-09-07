@@ -52,51 +52,56 @@ const server = http.createServer(async (req, res) => {
   if (data.channels) {
     // Channels are directly in the data object, and group extraction is needed
     channels = data.channels;
+ 
+	// Plex-specific genre mapping when region is NOT 'all'
+	if (service.toLowerCase() === 'plex' && region !== 'all') {
+	  const channelsJsonUrl = 'https://raw.githubusercontent.com/dtankdempse/free-iptv-channels/main/plex/channels.json';
+	  let plexChannels;
+	  try {
+		plexChannels = await fetchJson(channelsJsonUrl);
+	  } catch (error) {
+		res.writeHead(500, { 'Content-Type': 'text/plain' });
+		return res.end('Error: Failed to fetch Plex channels');
+	  }
 
-    // Plex-specific region filtering logic
-    if (service.toLowerCase() === 'plex' && region !== 'all') {
-      const channelsJsonUrl = 'https://raw.githubusercontent.com/dtankdempse/free-iptv-channels/main/plex/channels.json';
-      let plexChannels;
-      try {
-        plexChannels = await fetchJson(channelsJsonUrl);
-      } catch (error) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        return res.end('Error: Failed to fetch Plex channels');
-      }
+	  channels = Object.keys(channels).reduce((filteredChannels, key) => {
+		const channel = channels[key];
+		if (channel.regions && channel.regions.includes(region)) {
+		  // Search for the channel in the Plex channels JSON by title
+		  const plexChannel = plexChannels.find(ch => ch.Title === channel.name);
 
-      channels = Object.keys(channels).reduce((filteredChannels, key) => {
-        const channel = channels[key];
-        if (channel.regions && channel.regions.includes(region)) {
-          // Search for the channel in the Plex channels JSON by title
-          const plexChannel = plexChannels.find(ch => ch.Title === channel.name);
+		  // Use the genre from the Plex channels JSON for group-title, default to "Uncategorized"
+		  const genre = plexChannel && plexChannel.Genre ? plexChannel.Genre : 'Uncategorized';
+		  
+		  // Assign the genre to the group-title
+		  filteredChannels[key] = { 
+			...channel, 
+			group: `${genre}`
+		  };
+		}
+		return filteredChannels;
+	  }, {});
+	}
 
-          // Use the genre from the Plex channels JSON for group-title, default to "Uncategorized"
-          const genre = plexChannel && plexChannel.Genre ? plexChannel.Genre : 'Uncategorized';
-          filteredChannels[key] = { 
-            ...channel, 
-            group: `${genre}`
-          };
-        }
-        return filteredChannels;
-      }, {});
-    }
+	// Region mapping when region is "all"
+	if (service.toLowerCase() === 'plex' && region === 'all') {
+	  channels = Object.keys(channels).reduce((filteredChannels, key) => {
+		const channel = channels[key];
+		if (channel.regions && channel.regions.length > 0) {
+		  channel.regions.forEach(regionCode => {
+			const regionFullName = regionNameMap[regionCode] || regionCode.toUpperCase();
+			
+			// Assign the region name as the group-title
+			filteredChannels[key] = {
+			  ...channel,
+			  group: `${regionFullName}`
+			};
+		  });
+		}
+		return filteredChannels;
+	  }, {});
+	}
 
-    // When region is "all", show country mapping
-    if (service.toLowerCase() === 'plex' && region === 'all') {
-      channels = Object.keys(channels).reduce((filteredChannels, key) => {
-        const channel = channels[key];
-        if (channel.regions && channel.regions.length > 0) {
-          channel.regions.forEach(regionCode => {
-            const regionFullName = regionNameMap[regionCode] || regionCode.toUpperCase();
-            filteredChannels[key] = {
-              ...channel,
-              group: `${regionFullName}`
-            };
-          });
-        }
-        return filteredChannels;
-      }, {});
-    }
     groupExtractionRequired = true;
   } else if (data.regions) {
     // Channels are inside regions, no special group extraction needed
