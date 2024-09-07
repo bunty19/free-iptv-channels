@@ -61,7 +61,7 @@ function doGet(e) {
           // Assign only the genre when region is NOT 'all'
           filteredChannels[key] = { 
             ...channel, 
-            group: `${genre}`
+            group: `${genre}` // Ensure it only assigns genre here, not region
           };
         }
 
@@ -69,7 +69,7 @@ function doGet(e) {
       }, {});
     }
 
-    // When region is "all", show country mapping
+    // Separate logic when region is "all" for region-based mapping
     if (service.toLowerCase() === 'plex' && region === 'all') {
       channels = Object.keys(channels).reduce((filteredChannels, key) => {
         const channel = channels[key];
@@ -81,7 +81,7 @@ function doGet(e) {
 
             filteredChannels[key] = {
               ...channel,
-              group: `${regionFullName}` // Use the full country name when region is 'all'
+              group: `${regionFullName}` // Only apply region name when region is "all"
             };
           });
         }
