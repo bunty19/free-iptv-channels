@@ -120,7 +120,7 @@ function doGet(e) {
   }
 
   const startChno = params.start_chno ? parseInt(params.start_chno) : null;
-  const sort = params.sort || 'chno';
+  const sort = params.sort || 'name';
   const include = (params.include || '').split(',').filter(Boolean);
   const exclude = (params.exclude || '').split(',').filter(Boolean);
 
@@ -134,7 +134,7 @@ function doGet(e) {
   const sortedKeys = Object.keys(channels).sort((a, b) => {
     const chA = channels[a];
     const chB = channels[b];
-    return chA.name.localeCompare(chB.name); 
+    return sort === 'chno' ? (chA.chno - chB.chno) : chA.name.localeCompare(chB.name);
   });
 
   sortedKeys.forEach(key => {
