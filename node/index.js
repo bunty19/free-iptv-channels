@@ -36,6 +36,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   let channels = {};
+  const sort = params.sort || 'name';
   let groupExtractionRequired = false;
   let regionNames = {}; // For Plex, to map region codes to full names
 
@@ -145,7 +146,7 @@ const server = http.createServer(async (req, res) => {
   const sortedKeys = Object.keys(channels).sort((a, b) => {
     const chA = channels[a];
     const chB = channels[b];
-    return chA.name.localeCompare(chB.name);
+     return sort === 'chno' ? (chA.chno - chB.chno) : chA.name.localeCompare(chB.name);
   });
 
   sortedKeys.forEach(key => {
