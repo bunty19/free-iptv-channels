@@ -54,10 +54,10 @@ Use one of these region codes to specify the region in the `region` parameter:
 
 Use one of the following options in the `sort` parameter to specify how you want to sort the channels:
 
-- **`name`** (default):  
+- `name`: (default):  
   Sorts the channels alphabetically by their name.
 
-- **`chno`**:  
+- `chno`:  
   Sorts the channels by their assigned channel number.
 
 ### How to Add the Script to Your Google Account (code.gs)
