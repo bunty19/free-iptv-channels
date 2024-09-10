@@ -17,7 +17,7 @@ Use the following URL to access the hosted script. Replace the `ADD_REGION` and 
 
 After customizing the URL by replacing the ADD_REGION and ADD_SERVICE placeholders with your desired region and service (e.g., us for the US region and Pluto for the service), copy the complete URL and paste it into the "Add Playlist" or "M3U8 URL" section of your IPTV application. Once added, the app will load both the channels and the guide information
 
-### Available Service Parameters
+### Available Service Parameter Values
 
 Choose one of the following services to include in the `service` parameter:
 
@@ -29,7 +29,7 @@ Choose one of the following services to include in the `service` parameter:
 - PBSKids
 - Stirr
 
-### Available Region Parameters
+### Available Region Parameter Values
 
 Use one of these region codes to specify the region in the `region` parameter:
 
@@ -48,9 +48,20 @@ Use one of these region codes to specify the region in the `region` parameter:
 - `se` (Sweden)
 - `us` (United States)
 
-**Please note:** It is recommended to add the Google Apps Script to your own Google account or deploy the script to one of the other services, rather than relying on this publicly shared URL long-term.
+### Available Sorting Parameter Values (optional)
+
+Use one of the following options in the `sort` parameter to specify how you want to sort the channels:
+
+- **`name`** (default):  
+  Sorts the channels alphabetically by their name.
+
+- **`chno`**:  
+  Sorts the channels by their assigned channel number.
 
 ### How to Add the Script to Your Google Account (code.gs)
+
+**⚠️ Please note:** It is recommended to add the Google Apps Script to your own Google account or deploy the script to one of the other services, rather than relying on this publicly shared URL long-term.
+
 
 Go <a href="https://script.google.com/home/start" target="_blank">here</a> and click the "New Project" button in the upper left corner. Then, copy the script from <a href="https://github.com/dtankdempse/free-iptv-channels/blob/main/code.gs" target="_blank">code.gs</a> and paste it into the script editor. Once done, deploy the script.
 
